@@ -36,7 +36,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	printTruthTable(output)
 
 	significantGroupEachOutput, err := QuineMcCluskey(input, output)
 	if err != nil {
@@ -54,14 +53,14 @@ func main() {
 					if *item == 1 {
 						notToken += " "
 					} else {
-						notToken += "-"
+						notToken += "_"
 					}
 				}
 			}
 			expr = append(expr, significantStr)
 			notList = append(notList, notToken)
 		}
-		fmt.Printf("   %s\n", strings.Join(notList, " "))
-		fmt.Printf("%s: %s\n", outputHeader[outputIndex], strings.Join(expr, "+"))
+		fmt.Printf("    %s\n", strings.Join(notList, "   "))
+		fmt.Printf("%s = %s\n", outputHeader[outputIndex], strings.Join(expr, " + "))
 	}
 }

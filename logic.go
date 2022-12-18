@@ -102,13 +102,6 @@ func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
 		return mustSignificantGroupList
 	}
 
-	fmt.Printf("===must-significant-list(%d)===\n", dfsCount)
-	printSignificantTable(mustSignificantGroupList)
-	fmt.Println()
-	fmt.Printf("===new-significant-list(%d)===\n", dfsCount)
-	printSignificantTable(newSignificantGroupList)
-	fmt.Println()
-
 	mustSignificantList2 := dfs(newSignificantGroupList)
 
 	return append(mustSignificantGroupList, mustSignificantList2...)
