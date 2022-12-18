@@ -29,10 +29,11 @@ func QuineMcCluskey(in [][]int, out [][]*int) ([][][]SignificantGroup, error) {
 	for i := 0; i < outM; i++ {
 		mustSignificantList, optionalSignificantList := quineMcCluskeyWith1out(in, getColumnFrom2d(out, i))
 		optimizedSignificantList := make([][]SignificantGroup, len(optionalSignificantList))
-		for i, optionalSignificant := range optionalSignificantList {
-			optimizedSignificantList[i] = append(optimizedSignificantList[i], mustSignificantList...)
-			optimizedSignificantList[i] = append(optimizedSignificantList[i], optionalSignificant)
+		for j, optionalSignificant := range optionalSignificantList {
+			optimizedSignificantList[j] = append(optimizedSignificantList[j], mustSignificantList...)
+			optimizedSignificantList[j] = append(optimizedSignificantList[j], optionalSignificant)
 		}
+		table[i] = optimizedSignificantList
 	}
 
 	return table, nil
