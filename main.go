@@ -41,7 +41,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	for outputIndex, significantGroup := range significantGroupEachOutput {
+		if len(significantGroup) == 0 {
+			fmt.Println()
+			fmt.Printf("%s = 0\n", outputHeader[outputIndex])
+			continue
+		}
+
 		expr := []string{}
 		notList := []string{}
 		for _, optimizedSignificant := range significantGroup[0] {
