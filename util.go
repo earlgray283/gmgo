@@ -67,3 +67,11 @@ func printTruthTable2(a [][]int) {
 		fmt.Println(strings.Join(dispList, " | "))
 	}
 }
+
+func joinNtimes(s string, n int) string {
+	tmp := strings.Builder{}
+	for i := 0; i < n; i++ {
+		_, _ = tmp.WriteString(s)
+	}
+	return tmp.String()
+}

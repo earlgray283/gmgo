@@ -51,9 +51,9 @@ func main() {
 				if item != nil {
 					significantStr = append(significantStr, inputHeader[inputIndex])
 					if *item == 1 {
-						notToken = append(notToken, " ")
+						notToken = append(notToken, joinNtimes(" ", len(inputHeader[inputIndex])))
 					} else {
-						notToken = append(notToken, "_")
+						notToken = append(notToken, joinNtimes("_", len(inputHeader[inputIndex])))
 					}
 				}
 			}
