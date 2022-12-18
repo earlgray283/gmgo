@@ -3,7 +3,7 @@
 ## install
 
 ```shell
-$ go install .
+$ go install github.com/earlgray283/qmgo
 ```
 
 ## example
