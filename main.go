@@ -45,20 +45,20 @@ func main() {
 		expr := []string{}
 		notList := []string{}
 		for _, optimizedSignificant := range significantGroup[0] {
-			significantStr := ""
-			notToken := ""
+			significantStr := []string{}
+			notToken := []string{}
 			for inputIndex, item := range optimizedSignificant.Significant {
 				if item != nil {
-					significantStr += inputHeader[inputIndex]
+					significantStr = append(significantStr, inputHeader[inputIndex])
 					if *item == 1 {
-						notToken += " "
+						notToken = append(notToken, " ")
 					} else {
-						notToken += "_"
+						notToken = append(notToken, "_")
 					}
 				}
 			}
-			expr = append(expr, significantStr)
-			notList = append(notList, notToken)
+			expr = append(expr, strings.Join(significantStr, " * "))
+			notList = append(notList, strings.Join(notToken, "   "))
 		}
 		fmt.Printf("    %s\n", strings.Join(notList, "   "))
 		fmt.Printf("%s = %s\n", outputHeader[outputIndex], strings.Join(expr, " + "))
