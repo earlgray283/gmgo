@@ -58,7 +58,7 @@ func compareSignificantGroup(a, b SignificantGroup) bool {
 
 func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
 	dfsCount++
-	if dfsCount == 10 {
+	if dfsCount == 100000 {
 		panic("too many call of dfs")
 	}
 
