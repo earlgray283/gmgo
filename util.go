@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -23,7 +25,24 @@ func getColumnFrom2d[T any](a [][]T, rowPos int) []T {
 	return column
 }
 
-
+func openFileAsCsv(path string) ([]string, [][]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer f.Close()
+	r := csv.NewReader(f)
+	records, err := r.ReadAll()
+	if err != nil {
+		return nil, nil, err
+	}
+	var header []string
+	if csvLabelFlag {
+		header = records[0]
+		records = records[1:]
+	}
+	return header, records, nil
+}
 
 func printTruthTable(a [][]*int) {
 	for _, row := range a {
@@ -33,7 +52,6 @@ func printTruthTable(a [][]*int) {
 				dispList = append(dispList, "-")
 			} else {
 				dispList = append(dispList, strconv.Itoa(*col))
-
 			}
 		}
 		fmt.Println(strings.Join(dispList, " | "))
