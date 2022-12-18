@@ -11,7 +11,7 @@ import (
 )
 
 // nil は don't care として扱う
-func QuineMcCluskey(in [][]int, out [][]*int) ([][]SignificantGroup, error) {
+func QuineMcCluskey(in [][]int, out [][]*int) ([][][]SignificantGroup, error) {
 	if len(in) != len(out) {
 		return nil, errors.New("len(in) must be equal to len(out)")
 	}
@@ -24,10 +24,15 @@ func QuineMcCluskey(in [][]int, out [][]*int) ([][]SignificantGroup, error) {
 	}
 	_, outM := len(in[0]), len(out[0])
 
-	table := make([][]SignificantGroup, outM)
+	table := make([][][]SignificantGroup, outM)
 	// out の列ごとに Quine-McCluskey をやる
 	for i := 0; i < outM; i++ {
-		table[i] = quineMcCluskeyWith1out(in, getColumnFrom2d(out, i))
+		mustSignificantList, optionalSignificantList := quineMcCluskeyWith1out(in, getColumnFrom2d(out, i))
+		optimizedSignificantList := make([][]SignificantGroup, len(optionalSignificantList))
+		for i, optionalSignificant := range optionalSignificantList {
+			optimizedSignificantList[i] = append(optimizedSignificantList[i], mustSignificantList...)
+			optimizedSignificantList[i] = append(optimizedSignificantList[i], optionalSignificant)
+		}
 	}
 
 	return table, nil
@@ -38,6 +43,16 @@ var dfsCount int
 type SignificantGroup struct {
 	Significant []*int
 	IndexList   []int
+}
+
+func compareSignificantGroup(a, b SignificantGroup) bool {
+	aID := strings.Join(lo.Map(a.IndexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
+	bID := strings.Join(lo.Map(b.IndexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
+	if len(aID) != len(bID) {
+		return len(aID) < len(bID)
+	} else {
+		return aID < bID
+	}
 }
 
 func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
@@ -79,15 +94,7 @@ func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
 		}
 	}
 	mustSignificantGroupList := lo.Values(mustSignificantGroupListByIndex)
-	slices.SortFunc(mustSignificantGroupList, func(a, b SignificantGroup) bool {
-		aID := strings.Join(lo.Map(a.IndexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
-		bID := strings.Join(lo.Map(b.IndexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
-		if len(aID) != len(bID) {
-			return len(aID) < len(bID)
-		} else {
-			return aID < bID
-		}
-	})
+	slices.SortFunc(mustSignificantGroupList, compareSignificantGroup)
 
 	// 必須項のみだったらこれ以上再帰をする必要がないので return
 	if len(mustSignificantGroupList) == len(newSignificantGroupList) {
@@ -106,9 +113,11 @@ func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
 	return append(mustSignificantGroupList, mustSignificantList2...)
 }
 
-func quineMcCluskeyWith1out(in [][]int, out []*int) []SignificantGroup {
+// return must, optional
+func quineMcCluskeyWith1out(in [][]int, out []*int) ([]SignificantGroup, []SignificantGroup) {
 	// out が1となるような input の行を追加していく
 	significantList := make([]SignificantGroup, 0)
+	dontCareFlagList := map[int]bool{}
 	for i := 0; i < len(in); i++ {
 		if out[i] == nil {
 			significantList = append(significantList, SignificantGroup{
@@ -117,6 +126,7 @@ func quineMcCluskeyWith1out(in [][]int, out []*int) []SignificantGroup {
 				}),
 				IndexList: []int{i},
 			})
+			dontCareFlagList[i] = true
 		} else if *out[i] == 1 {
 			significantList = append(significantList, SignificantGroup{
 				Significant: lo.Map(in[i], func(a int, _ int) *int {
@@ -127,10 +137,35 @@ func quineMcCluskeyWith1out(in [][]int, out []*int) []SignificantGroup {
 		}
 	}
 
-	fmt.Println("===in(out=1)===")
-	printSignificantTable(significantList)
+	significantGroupList := dfs(significantList)
+	belongListByIndex := map[int][]int{}
+	for i, significantGroup := range significantGroupList {
+		for _, index := range significantGroup.IndexList {
+			if dontCareFlagList[index] {
+				continue
+			}
+			belongListByIndex[index] = append(belongListByIndex[index], i)
+		}
+	}
+	mustSignificantGroupList := make([]SignificantGroup, 0)
+	mustFlagList := map[int]bool{}
+	for _, belongList := range belongListByIndex {
+		if len(belongList) == 1 {
+			mustSignificantGroupList = append(mustSignificantGroupList, significantGroupList[belongList[0]])
+			mustFlagList[belongList[0]] = true
+		}
+	}
+	optionalSignificantGroupList := make([]SignificantGroup, 0)
+	for index, significantGroup := range significantGroupList {
+		if !mustFlagList[index] {
+			optionalSignificantGroupList = append(optionalSignificantGroupList, significantGroup)
+		}
+	}
 
-	return dfs(significantList)
+	slices.SortFunc(mustSignificantGroupList, compareSignificantGroup)
+	slices.SortFunc(optionalSignificantGroupList, compareSignificantGroup)
+
+	return mustSignificantGroupList, optionalSignificantGroupList
 }
 
 func calcHammingDistance(a, b []*int) int {
