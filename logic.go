@@ -36,8 +36,8 @@ func QuineMcCluskey(in [][]int, out [][]*int) ([][]SignificantGroup, error) {
 var dfsCount int
 
 type SignificantGroup struct {
-	significant []*int
-	indexList   []int
+	Significant []*int
+	IndexList   []int
 }
 
 func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
@@ -49,15 +49,15 @@ func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
 	newSignificantGroupListByID := map[string]SignificantGroup{} // 項
 	for i := 0; i < len(significantGroupList)-1; i++ {
 		for j := i + 1; j < len(significantGroupList); j++ {
-			if calcHammingDistance(significantGroupList[i].significant, significantGroupList[j].significant) != 1 {
+			if calcHammingDistance(significantGroupList[i].Significant, significantGroupList[j].Significant) != 1 {
 				continue
 			}
 			significantGroup := SignificantGroup{
-				significant: combination(significantGroupList[i].significant, significantGroupList[j].significant),
-				indexList:   append(significantGroupList[i].indexList, significantGroupList[j].indexList...),
+				Significant: combination(significantGroupList[i].Significant, significantGroupList[j].Significant),
+				IndexList:   append(significantGroupList[i].IndexList, significantGroupList[j].IndexList...),
 			}
-			slices.Sort(significantGroup.indexList)
-			id := strings.Join(lo.Map(significantGroup.indexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
+			slices.Sort(significantGroup.IndexList)
+			id := strings.Join(lo.Map(significantGroup.IndexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
 			newSignificantGroupListByID[id] = significantGroup
 		}
 	}
@@ -66,7 +66,7 @@ func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
 	// 単一項(index)が所属している組み合わせ項の index の list
 	belongListByIndex := map[int][]int{}
 	for i, significantGroup := range newSignificantGroupList {
-		for _, index := range significantGroup.indexList {
+		for _, index := range significantGroup.IndexList {
 			belongListByIndex[index] = append(belongListByIndex[index], i)
 		}
 	}
@@ -79,6 +79,15 @@ func dfs(significantGroupList []SignificantGroup) []SignificantGroup {
 		}
 	}
 	mustSignificantGroupList := lo.Values(mustSignificantGroupListByIndex)
+	slices.SortFunc(mustSignificantGroupList, func(a, b SignificantGroup) bool {
+		aID := strings.Join(lo.Map(a.IndexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
+		bID := strings.Join(lo.Map(b.IndexList, func(item, _ int) string { return strconv.Itoa(item) }), ",")
+		if len(aID) != len(bID) {
+			return len(aID) < len(bID)
+		} else {
+			return aID < bID
+		}
+	})
 
 	// 必須項のみだったらこれ以上再帰をする必要がないので return
 	if len(mustSignificantGroupList) == len(newSignificantGroupList) {
@@ -103,17 +112,17 @@ func quineMcCluskeyWith1out(in [][]int, out []*int) []SignificantGroup {
 	for i := 0; i < len(in); i++ {
 		if out[i] == nil {
 			significantList = append(significantList, SignificantGroup{
-				significant: lo.Map(in[i], func(a int, _ int) *int {
+				Significant: lo.Map(in[i], func(a int, _ int) *int {
 					return &a
 				}),
-				indexList: []int{i},
+				IndexList: []int{i},
 			})
 		} else if *out[i] == 1 {
 			significantList = append(significantList, SignificantGroup{
-				significant: lo.Map(in[i], func(a int, _ int) *int {
+				Significant: lo.Map(in[i], func(a int, _ int) *int {
 					return &a
 				}),
-				indexList: []int{i},
+				IndexList: []int{i},
 			})
 		}
 	}
@@ -157,14 +166,14 @@ func combination(a, b []*int) []*int {
 }
 
 func printSignificant(label string, row SignificantGroup) {
-	dispList := lo.Map(row.significant, func(item *int, _ int) string {
+	dispList := lo.Map(row.Significant, func(item *int, _ int) string {
 		if item == nil {
 			return "-"
 		} else {
 			return strconv.Itoa(*item)
 		}
 	})
-	indexList := lo.Map(row.indexList, func(index int, _ int) string {
+	indexList := lo.Map(row.IndexList, func(index int, _ int) string {
 		return strconv.Itoa(index)
 	})
 
