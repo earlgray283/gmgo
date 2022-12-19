@@ -27,31 +27,36 @@ func main() {
 		fmt.Println("USAGE: qmgo <input path> <output path> [...options]")
 		return
 	}
-	inputHeader, inputCsv, err := openFileAsCsv(args[0])
+	rawInputHeader, inputCsv, err := openFileAsCsv(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
 	if os.Getenv("INPUT_LABEL_CSV") != "" {
-		inputHeader = strings.Split("INPUT_LABEL_CSV", ",")
+		rawInputHeader = strings.Split(os.Getenv("INPUT_LABEL_CSV"), ",")
 	}
-	input, inputRemovedList, err := parseInputCsv(inputCsv)
+	input, inputRemovedSet, err := parseInputCsv(inputCsv)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, index := range inputRemovedList {
-		inputHeader = append(inputHeader[:index], inputHeader[index+1:]...)
+	inputHeader := []string{}
+	for index, field := range rawInputHeader {
+		if _, ok := inputRemovedSet[index]; !ok {
+			inputHeader = append(inputHeader, field)
+		}
 	}
 	outputHeader, outputCsv, err := openFileAsCsv(args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
 	if os.Getenv("OUTPUT_LABEL_CSV") != "" {
-		outputHeader = strings.Split("OUTPUT_LABEL_CSV", ",")
+		outputHeader = strings.Split(os.Getenv("OUTPUT_LABEL_CSV"), ",")
 	}
 	output, err := parseOutputCsv(outputCsv)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println(inputHeader, outputHeader)
 
 	significantGroupEachOutput, err := QuineMcCluskey(input, output)
 	if err != nil {
@@ -59,6 +64,30 @@ func main() {
 	}
 
 	for outputIndex, significantGroup := range significantGroupEachOutput {
+		column := getColumnFrom2d(output, outputIndex)
+		first := column[0]
+		if all(column, func(item *int) bool {
+			if first == nil {
+				return item == first
+			} else {
+				if item == nil {
+					return false
+				} else {
+					return *item == *first
+				}
+			}
+		}) {
+			fmt.Println()
+			if first == nil {
+				fmt.Printf("%s = 0\n", outputHeader[outputIndex])
+			} else if *first == 0 {
+				fmt.Printf("%s = 0\n", outputHeader[outputIndex])
+			} else {
+				fmt.Printf("%s = 1\n", outputHeader[outputIndex])
+			}
+			continue
+		}
+
 		if len(significantGroup) == 0 {
 			fmt.Println()
 			fmt.Printf("%s = 0\n", outputHeader[outputIndex])

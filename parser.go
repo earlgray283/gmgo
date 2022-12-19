@@ -5,15 +5,15 @@ import (
 )
 
 // return input table, removed index list, error
-func parseInputCsv(records [][]string) ([][]int, []int, error) {
+func parseInputCsv(records [][]string) ([][]int, map[int]struct{}, error) {
 	inputTable := [][]int{}
-	removedList := []int{}
+	removedSet := map[int]struct{}{}
 	for _, record := range records {
 		row := []int{}
 		for i, cell := range record {
 			v, err := strconv.Atoi(cell)
 			if err != nil {
-				removedList = append(removedList, i)
+				removedSet[i] = struct{}{}
 				continue
 			}
 			if v != 0 && v != 1 {
@@ -23,7 +23,7 @@ func parseInputCsv(records [][]string) ([][]int, []int, error) {
 		}
 		inputTable = append(inputTable, row)
 	}
-	return inputTable, removedList, nil
+	return inputTable, removedSet, nil
 }
 
 func parseOutputCsv(records [][]string) ([][]*int, error) {
