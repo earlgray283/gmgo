@@ -2,18 +2,19 @@ package main
 
 import (
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
-func parseInputCsv(records [][]string) ([][]int, error) {
+// return input table, removed index list, error
+func parseInputCsv(records [][]string) ([][]int, []int, error) {
 	inputTable := [][]int{}
+	removedList := []int{}
 	for _, record := range records {
 		row := []int{}
-		for _, cell := range record {
+		for i, cell := range record {
 			v, err := strconv.Atoi(cell)
 			if err != nil {
-				return nil, errors.Wrap(err, "don't care is currently not allowed:(")
+				removedList = append(removedList, i)
+				continue
 			}
 			if v != 0 && v != 1 {
 				v = 1
@@ -22,7 +23,7 @@ func parseInputCsv(records [][]string) ([][]int, error) {
 		}
 		inputTable = append(inputTable, row)
 	}
-	return inputTable, nil
+	return inputTable, removedList, nil
 }
 
 func parseOutputCsv(records [][]string) ([][]*int, error) {
