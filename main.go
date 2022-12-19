@@ -19,7 +19,7 @@ func init() {
 }
 
 func main() {
-	flag.BoolVar(&csvLabelFlag, "csv-label", true, "default is true")
+	flag.BoolVar(&csvLabelFlag, "csv-label", false, "default is false")
 	flag.Parse()
 
 	args := flag.Args()
