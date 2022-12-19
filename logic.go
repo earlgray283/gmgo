@@ -28,10 +28,29 @@ func QuineMcCluskey(in [][]int, out [][]*int) ([][][]SignificantGroup, error) {
 	// out の列ごとに Quine-McCluskey をやる
 	for i := 0; i < outM; i++ {
 		mustSignificantList, optionalSignificantList := quineMcCluskeyWith1out(in, getColumnFrom2d(out, i))
-		optimizedSignificantList := make([][]SignificantGroup, len(optionalSignificantList))
-		for j, optionalSignificant := range optionalSignificantList {
-			optimizedSignificantList[j] = append(optimizedSignificantList[j], mustSignificantList...)
-			optimizedSignificantList[j] = append(optimizedSignificantList[j], optionalSignificant)
+		var optimizedSignificantList [][]SignificantGroup
+		if len(optionalSignificantList) != 0 {
+			optimizedSignificantList = make([][]SignificantGroup, len(optionalSignificantList))
+			for j, optionalSignificant := range optionalSignificantList {
+				optimizedSignificantList[j] = append(optimizedSignificantList[j], mustSignificantList...)
+				optimizedSignificantList[j] = append(optimizedSignificantList[j], optionalSignificant)
+			}
+		} else if len(mustSignificantList) != 0 {
+			optimizedSignificantList = append(optimizedSignificantList, []SignificantGroup{})
+			optimizedSignificantList[0] = append(optimizedSignificantList[0], mustSignificantList...)
+		} else {
+			optimizedSignificantList = append(optimizedSignificantList, []SignificantGroup{})
+			for j, row := range in {
+				if out[j][i] == nil {
+					continue
+				}
+				if *out[j][i] == 1 {
+					optimizedSignificantList[0] = append(optimizedSignificantList[0],
+						SignificantGroup{
+							Significant: lo.Map(row, func(item int, _ int) *int { return &item }),
+						})
+				}
+			}
 		}
 		table[i] = optimizedSignificantList
 	}
