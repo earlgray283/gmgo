@@ -4,12 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 var (
 	csvLabelFlag bool
 )
+
+func init() {
+	_ = godotenv.Load(".env")
+}
 
 func main() {
 	flag.BoolVar(&csvLabelFlag, "csv-label", true, "default is true")
@@ -24,13 +31,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	input, err := parseInputCsv(inputCsv)
+	if os.Getenv("INPUT_LABEL_CSV") != "" {
+		inputHeader = strings.Split("INPUT_LABEL_CSV", ",")
+	}
+	input, inputRemovedList, err := parseInputCsv(inputCsv)
 	if err != nil {
 		log.Fatal(err)
+	}
+	for _, index := range inputRemovedList {
+		inputHeader = append(inputHeader[:index], inputHeader[index+1:]...)
 	}
 	outputHeader, outputCsv, err := openFileAsCsv(args[1])
 	if err != nil {
 		log.Fatal(err)
+	}
+	if os.Getenv("OUTPUT_LABEL_CSV") != "" {
+		outputHeader = strings.Split("OUTPUT_LABEL_CSV", ",")
 	}
 	output, err := parseOutputCsv(outputCsv)
 	if err != nil {
