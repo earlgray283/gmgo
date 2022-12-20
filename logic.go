@@ -213,23 +213,17 @@ func combination(a, b []*int) []*int {
 	return combi
 }
 
-func printSignificant(label string, row SignificantGroup) {
-	dispList := lo.Map(row.Significant, func(item *int, _ int) string {
+func (s SignificantGroup) String() string {
+	dispList := lo.Map(s.Significant, func(item *int, _ int) string {
 		if item == nil {
 			return "-"
 		} else {
 			return strconv.Itoa(*item)
 		}
 	})
-	indexList := lo.Map(row.IndexList, func(index int, _ int) string {
+	indexList := lo.Map(s.IndexList, func(index int, _ int) string {
 		return strconv.Itoa(index)
 	})
 
-	fmt.Println(label, strings.Join(dispList, " | "), "("+strings.Join(indexList, ", ")+")")
-}
-
-func printSignificantTable(a []SignificantGroup) {
-	for _, row := range a {
-		printSignificant("", row)
-	}
+	return fmt.Sprintln(strings.Join(dispList, " | "), "("+strings.Join(indexList, ", ")+")")
 }

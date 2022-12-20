@@ -62,10 +62,14 @@ func Test_quineMcCluskeyWith1out(t *testing.T) {
 	mustList, optionalList := quineMcCluskeyWith1out(in, GetColumnFrom2d(out, 0))
 
 	fmt.Println("===must-significant-table===")
-	printSignificantTable(mustList)
+	for _, item := range mustList {
+		fmt.Println(item)
+	}
 	fmt.Println()
 	fmt.Println("===optional-significant-table===")
-	printSignificantTable(optionalList)
+	for _, item := range optionalList {
+		fmt.Println(item)
+	}
 	fmt.Println()
 
 	assert.Equal(t, 2, len(mustList))
