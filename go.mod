@@ -1,4 +1,4 @@
-module github.com/earlgray283/qmgo
+module github.com/earlgray283/quine-mccluskey
 
 go 1.19
 
