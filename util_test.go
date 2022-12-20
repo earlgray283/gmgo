@@ -1,4 +1,4 @@
-package main
+package quinemccluskey
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ func Test_getColumnFrom2d(t *testing.T) {
 		{9, 10, 11, 12},
 		{13, 14, 15, 16},
 	}
-	colList := getColumnFrom2d(a, 3)
+	colList := GetColumnFrom2d(a, 3)
 	assert.Equal(t, colList[0], 4)
 	assert.Equal(t, colList[1], 8)
 	assert.Equal(t, colList[2], 12)

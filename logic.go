@@ -1,4 +1,4 @@
-package main
+package quinemccluskey
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ func QuineMcCluskey(in [][]int, out [][]*int) ([][][]SignificantGroup, error) {
 	if n == 0 {
 		return nil, nil
 	}
-	if !all(in, func(t []int) bool { return len(t) == len(in[0]) }) || !all(out, func(t []*int) bool { return len(t) == len(out[0]) }) {
+	if !All(in, func(t []int) bool { return len(t) == len(in[0]) }) || !All(out, func(t []*int) bool { return len(t) == len(out[0]) }) {
 		return nil, errors.New("")
 	}
 	_, outM := len(in[0]), len(out[0])
@@ -27,7 +27,7 @@ func QuineMcCluskey(in [][]int, out [][]*int) ([][][]SignificantGroup, error) {
 	table := make([][][]SignificantGroup, outM)
 	// out の列ごとに Quine-McCluskey をやる
 	for i := 0; i < outM; i++ {
-		mustSignificantList, optionalSignificantList := quineMcCluskeyWith1out(in, getColumnFrom2d(out, i))
+		mustSignificantList, optionalSignificantList := quineMcCluskeyWith1out(in, GetColumnFrom2d(out, i))
 		var optimizedSignificantList [][]SignificantGroup
 		if len(optionalSignificantList) != 0 {
 			optimizedSignificantList = make([][]SignificantGroup, len(optionalSignificantList))

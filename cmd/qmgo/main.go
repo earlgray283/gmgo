@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/csv"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
+	qm "github.com/earlgray283/quine-mccluskey"
 	"github.com/joho/godotenv"
 )
 
@@ -58,15 +60,15 @@ func main() {
 
 	fmt.Println(inputHeader, outputHeader)
 
-	significantGroupEachOutput, err := QuineMcCluskey(input, output)
+	significantGroupEachOutput, err := qm.QuineMcCluskey(input, output)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for outputIndex, significantGroup := range significantGroupEachOutput {
-		column := getColumnFrom2d(output, outputIndex)
+		column := qm.GetColumnFrom2d(output, outputIndex)
 		first := column[0]
-		if all(column, func(item *int) bool {
+		if qm.All(column, func(item *int) bool {
 			if first == nil {
 				return item == first
 			} else {
@@ -115,4 +117,31 @@ func main() {
 		fmt.Printf("    %s\n", strings.Join(notList, "   "))
 		fmt.Printf("%s = %s\n", outputHeader[outputIndex], strings.Join(expr, " + "))
 	}
+}
+
+func openFileAsCsv(path string) ([]string, [][]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer f.Close()
+	r := csv.NewReader(f)
+	records, err := r.ReadAll()
+	if err != nil {
+		return nil, nil, err
+	}
+	var header []string
+	if csvLabelFlag {
+		header = records[0]
+		records = records[1:]
+	}
+	return header, records, nil
+}
+
+func joinNtimes(s string, n int) string {
+	tmp := strings.Builder{}
+	for i := 0; i < n; i++ {
+		_, _ = tmp.WriteString(s)
+	}
+	return tmp.String()
 }

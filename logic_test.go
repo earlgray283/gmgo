@@ -1,4 +1,4 @@
-package main
+package quinemccluskey
 
 import (
 	"fmt"
@@ -59,7 +59,7 @@ func Test_quineMcCluskeyWith1out(t *testing.T) {
 	printTruthTable(out)
 	fmt.Println()
 
-	mustList, optionalList := quineMcCluskeyWith1out(in, getColumnFrom2d(out, 0))
+	mustList, optionalList := quineMcCluskeyWith1out(in, GetColumnFrom2d(out, 0))
 
 	fmt.Println("===must-significant-table===")
 	printSignificantTable(mustList)
