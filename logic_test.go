@@ -108,3 +108,16 @@ func Test_combination(t *testing.T) {
 	assert.Equal(t, combi[2], &zero)
 	assert.Equal(t, combi[3], &zero)
 }
+
+func Test_spreadDontCare(t *testing.T) {
+	in := [][]*int{
+		{nil, &zero},
+		{&zero, &one},
+	}
+	out := [][]*int{{&zero}, {&one}}
+	newIn, newOut := spreadDontCare(in, out)
+	assert.Equal(t, 3, len(newIn))
+	assert.Equal(t, 3, len(newOut))
+	assert.EqualValues(t, [][]int{{0, 0}, {1, 0}, {0, 1}}, newIn)
+	assert.EqualValues(t, [][]*int{{&zero}, {&zero}, {&one}}, newOut)
+}
