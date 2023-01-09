@@ -5,28 +5,27 @@ import (
 )
 
 // return input table, removed index list, error
-func parseInputCsv(records [][]string) ([][]int, map[int]struct{}, error) {
-	inputTable := [][]int{}
-	removedSet := map[int]struct{}{}
+func parseInputCsv(records [][]string) [][]*int {
+	inputTable := [][]*int{}
 	for _, record := range records {
-		row := []int{}
-		for i, cell := range record {
+		row := []*int{}
+		for _, cell := range record {
 			v, err := strconv.Atoi(cell)
 			if err != nil {
-				removedSet[i] = struct{}{}
-				continue
+				row = append(row, nil)
+			} else {
+				if v != 0 && v != 1 {
+					v = 1
+				}
+				row = append(row, &v)
 			}
-			if v != 0 && v != 1 {
-				v = 1
-			}
-			row = append(row, v)
 		}
 		inputTable = append(inputTable, row)
 	}
-	return inputTable, removedSet, nil
+	return inputTable
 }
 
-func parseOutputCsv(records [][]string) ([][]*int, error) {
+func parseOutputCsv(records [][]string) [][]*int {
 	outputTable := [][]*int{}
 	for _, record := range records {
 		row := []*int{}
@@ -43,5 +42,5 @@ func parseOutputCsv(records [][]string) ([][]*int, error) {
 		}
 		outputTable = append(outputTable, row)
 	}
-	return outputTable, nil
+	return outputTable
 }

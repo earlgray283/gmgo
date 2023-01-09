@@ -10,8 +10,43 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+
+
+func spreadDontCare(in, out [][]*int) ([][]int, [][]*int) {
+	for {
+		newIn := [][]*int{}
+		newOut := [][]*int{}
+		containsDontCare := false
+		for rowIndex, row := range in {
+			appended := false
+			for colIndex, col := range row {
+				if col == nil {
+					newRow0, newRow1 := slices.Clone(row), slices.Clone(row)
+					newRow0[colIndex], newRow1[colIndex] = pointerOfValue(0), pointerOfValue(1)
+					newIn = append(newIn, newRow0, newRow1)
+					newOut = append(newOut, out[rowIndex], out[rowIndex])
+					containsDontCare = true
+					appended = true
+				}
+			}
+			if !appended {
+				newIn = append(newIn, slices.Clone(row))
+				newOut = append(newOut, out[rowIndex])
+			}
+		}
+		if !containsDontCare {
+			return lo.Map(newIn, func(row []*int, _ int) []int {
+				return lo.Map(row, func(col *int, _ int) int { return *col })
+			}), newOut
+		}
+		in, out = newIn, newOut
+	}
+}
+
 // nil は don't care として扱う
-func QuineMcCluskey(in [][]int, out [][]*int) ([][][]SignificantGroup, error) {
+func QuineMcCluskey(rawIn [][]*int, rawOut [][]*int) ([][][]SignificantGroup, error) {
+	in, out := spreadDontCare(rawIn, rawOut)
+
 	if len(in) != len(out) {
 		return nil, errors.New("len(in) must be equal to len(out)")
 	}

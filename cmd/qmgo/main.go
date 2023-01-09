@@ -29,23 +29,15 @@ func main() {
 		fmt.Println("USAGE: qmgo <input path> <output path> [...options]")
 		return
 	}
-	rawInputHeader, inputCsv, err := openFileAsCsv(args[0])
+	inputHeader, inputCsv, err := openFileAsCsv(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
 	if os.Getenv("INPUT_LABEL_CSV") != "" {
-		rawInputHeader = strings.Split(os.Getenv("INPUT_LABEL_CSV"), ",")
+		inputHeader = strings.Split(os.Getenv("INPUT_LABEL_CSV"), ",")
 	}
-	input, inputRemovedSet, err := parseInputCsv(inputCsv)
-	if err != nil {
-		log.Fatal(err)
-	}
-	inputHeader := []string{}
-	for index, field := range rawInputHeader {
-		if _, ok := inputRemovedSet[index]; !ok {
-			inputHeader = append(inputHeader, field)
-		}
-	}
+	input := parseInputCsv(inputCsv)
+
 	outputHeader, outputCsv, err := openFileAsCsv(args[1])
 	if err != nil {
 		log.Fatal(err)
@@ -53,12 +45,7 @@ func main() {
 	if os.Getenv("OUTPUT_LABEL_CSV") != "" {
 		outputHeader = strings.Split(os.Getenv("OUTPUT_LABEL_CSV"), ",")
 	}
-	output, err := parseOutputCsv(outputCsv)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(inputHeader, outputHeader)
+	output := parseOutputCsv(outputCsv)
 
 	significantGroupEachOutput, err := qm.QuineMcCluskey(input, output)
 	if err != nil {

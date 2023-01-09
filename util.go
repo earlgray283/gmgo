@@ -46,3 +46,5 @@ func printTruthTable2(a [][]int) {
 		fmt.Println(strings.Join(dispList, " | "))
 	}
 }
+
+func pointerOfValue[T any](v T) *T { return &v }
